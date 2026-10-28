@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volleyball Legends - Wheel & Expanded Shop System</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Rajdhani:wght@500;600;700&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Orbitron', 'sans-serif'],
+            heading: ['Teko', 'sans-serif'],
+            sans: ['Rajdhani', 'sans-serif'],
+          },
+          colors: {
+            rarity: {
+              common: '#9ca3af',
+              rare: '#3b82f6',
+              legendary: '#a855f7',
+              godly: '#eab308',
+              secret: '#ef4444'
+            }
+          },
+          animation: {
+            'pulse-glow': 'pulseGlow 2s infinite alternate',
+            'rainbow-glow': 'rainbowGlow 3s linear infinite',
+          },
+          keyframes: {
+            pulseGlow: {
+              '0%': { boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)' },
+              '100%': { boxShadow: '0 0 25px rgba(239, 68, 68, 0.9)' },
+            },
+            rainbowGlow: {
+              '0%': { filter: 'hue-rotate(0deg)' },
+              '100%': { filter: 'hue-rotate(360deg)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #070a12; }
+    ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+
+    .cyber-border {
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(13, 18, 36, 0.95) 100%);
+    }
+
+    .badge-common { background: #1e293b; color: #9ca3af; border: 1px solid #475569; }
+    .badge-rare { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid #2563eb; }
+    .badge-legendary { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #9333ea; }
+    .badge-godly { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid #ca8a04; box-shadow: 0 0 10px rgba(234,179,8,0.2); }
+    .badge-secret { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+
+    .text-glow-yellow { text-shadow: 0 0 12px rgba(234, 179, 8, 0.7); }
+    .text-glow-cyan { text-shadow: 0 0 12px rgba(6, 182, 212, 0.7); }
+    .text-glow-red { text-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 overflow-x-hidden selection:bg-fuchsia-500 selection:text-white">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="w-full bg-slate-950/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-xl">
+    <div class="flex items-center space-x-3">
+      <div class="bg-gradient-to-tr from-cyan-500 via-fuchsia-500 to-amber-400 p-2 rounded-xl text-slate-950 font-black text-xl shadow-lg shadow-cyan-500/20 rotate-[-2deg]">
+        <i class="fa-solid fa-volleyball text-white animate-spin" style="animation-duration: 10s;"></i>
+      </div>
+      <div>
+        <h1 class="font-display font-black text-xl sm:text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-amber-300">
+          VOLLEYBALL LEGENDS
+        </h1>
+        <p class="text-[11px] text-slate-400 -mt-1 font-semibold tracking-widest uppercase">Budget Wheel & Loadout Deck</p>
+      </div>
+    </div>
+
+    <!-- Budget & Quick Controls -->
+    <div class="flex items-center space-x-3">
+      <div class="bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-xl flex items-center gap-3">
+        <div class="text-right">
+          <span class="block text-[9px] uppercase tracking-wider text-slate-400 font-bold">Current Budget</span>
+          <div id="budget-text" class="font-display font-extrabold text-xl sm:text-2xl text-emerald-400 text-glow-yellow">
+            $0
+          </div>
+        </div>
+        <button onclick="openSpinnerModal()" class="bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-display font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-lg shadow-amber-500/20 active:scale-95 flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-spin text-sm"></i>
+          <span class="hidden sm:inline">Spin Wheel</span>
+        </button>
+      </div>
+
+      <!-- SFX Toggle -->
+      <button id="sound-toggle" onclick="toggleAudio()" class="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500 text-slate-300 transition">
+        <i class="fa-solid fa-volume-high text-cyan-400" id="sound-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS & QUICK PRESETS BAR -->
+  <div class="bg-slate-950/60 border-b border-slate-800/80 px-4 py-2.5 flex justify-between items-center flex-wrap gap-3">
+    <div class="flex space-x-2">
+      <button onclick="switchTab('shop')" id="tab-btn-shop" class="nav-tab px-4 py-2 rounded-xl font-display font-bold text-sm flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-store"></i> CATALOG STORE
+      </button>
+      <button onclick="switchTab('loadout')" id="tab-btn-loadout" class="nav-tab px-4 py-2 rounded-xl font-display font-bold text-sm flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition">
+        <i class="fa-solid fa-sliders"></i> LOADOUT DECK & STATS
+      </button>
+    </div>
+
+    <!-- Quick Loadout Preset Buttons -->
+    <div class="flex items-center gap-1.5 overflow-x-auto py-1">
+      <span class="text-[10px] uppercase font-bold text-slate-500 mr-1">Presets:</span>
+      <button onclick="applyPreset('budget')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-lg text-xs font-semibold whitespace-nowrap">Budget Build</button>
+      <button onclick="applyPreset('spiker')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 rounded-lg text-xs font-semibold whitespace-nowrap">Meta Spiker</button>
+      <button onclick="applyPreset('wall')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-400 rounded-lg text-xs font-semibold whitespace-nowrap">Defensive Wall</button>
+      <button onclick="applyPreset('godly')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-fuchsia-400 rounded-lg text-xs font-semibold whitespace-nowrap">Godly Flex</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 overflow-y-auto">
+
+    <!-- ==================== CATALOG SHOP TAB ==================== -->
+    <section id="view-shop" class="space-y-6">
+      
+      <!-- Filter Toolbar & Search Bar -->
+      <div class="cyber-border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Category Toggle -->
+        <div class="flex items-center gap-3">
+          <div class="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button onclick="setShopCategory('styles')" id="cat-btn-styles" class="px-4 py-2 rounded-lg font-display font-bold text-sm bg-cyan-600 text-white transition">STYLES (<span id="count-styles">0</span>)</button>
+            <button onclick="setShopCategory('abilities')" id="cat-btn-abilities" class="px-4 py-2 rounded-lg font-display font-bold text-sm text-slate-400 hover:text-white transition">ABILITIES (<span id="count-abilities">0</span>)</button>
+          </div>
+        </div>
+
+        <!-- Filters (Rarity, Sort, Search) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full md:w-auto">
+          <!-- Rarity Filter -->
+          <select id="rarity-filter" onchange="filterShopItems()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 font-semibold focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+            <option value="ALL">All Rarities</option>
+            <option value="Common">Common</option>
+            <option value="Rare">Rare</option>
+            <option value="Legendary">Legendary</option>
+            <option value="Godly">Godly</option>
+            <option value="Secret">Secret</option>
+          </select>
+
+          <!-- Sort Filter -->
+          <select id="sort-filter" onchange="filterShopItems()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 font-semibold focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="stat_desc">Highest Peak Stat</option>
+            <option value="name_asc">Name (A-Z)</option>
+          </select>
+
+          <!-- Fuzzy Search -->
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input type="text" id="shop-search" oninput="filterShopItems()" placeholder="Search style/ability..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl pl-8 pr-3 py-2 w-full focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- Item Grid Catalog -->
+      <div id="shop-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- JS Dynamic Cards Insertion -->
+      </div>
+    </section>
+
+    <!-- ==================== LOADOUT DECK & STAT ANALYZER TAB ==================== -->
+    <section id="view-loadout" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Equipped Active Deck Panel (5 Cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="cyber-border rounded-2xl p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="font-display font-extrabold text-xl text-cyan-400 flex items-center gap-2">
+                <i class="fa-solid fa-id-card"></i> EQUIPPED LOADOUT DECK
+              </h3>
+              <button onclick="exportLoadoutCode()" class="text-xs bg-slate-900 border border-slate-700 hover:border-cyan-500 px-2.5 py-1 rounded-lg text-slate-300 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-share-nodes text-cyan-400"></i> Export Build
+              </button>
+            </div>
+
+            <!-- Style Slot -->
+            <div class="my-4">
+              <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1.5">Equipped Style (1 Max)</span>
+              <div id="slot-style" class="bg-slate-950/80 border-2 border-dashed border-slate-800 rounded-2xl p-4 flex items-center justify-between transition min-h-[90px]">
+                <span class="text-slate-500 text-xs italic">No Style Equipped</span>
+              </div>
+            </div>
+
+            <!-- Ability Slots -->
+            <div class="my-4">
+              <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1.5">Equipped Abilities (2 Max)</span>
+              <div class="space-y-2.5">
+                <div id="slot-ability-0" class="bg-slate-950/80 border-2 border-dashed border-slate-800 rounded-2xl p-3 flex items-center justify-between min-h-[68px]">
+                  <span class="text-slate-500 text-xs italic">Ability Slot 1 Empty</span>
+                </div>
+                <div id="slot-ability-1" class="bg-slate-950/80 border-2 border-dashed border-slate-800 rounded-2xl p-3 flex items-center justify-between min-h-[68px]">
+                  <span class="text-slate-500 text-xs italic">Ability Slot 2 Empty</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Investment Breakdown -->
+            <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 text-xs flex justify-between items-center text-slate-400">
+              <span>Total Build Investment:</span>
+              <span id="loadout-cost-text" class="font-display font-bold text-base text-amber-400">$0</span>
+            </div>
+          </div>
+
+          <!-- Comprehensive Live Stat Analyzer Breakdown -->
+          <div class="cyber-border rounded-2xl p-5 space-y-3">
+            <h4 class="font-display font-bold text-sm text-slate-300 uppercase tracking-wider flex items-center justify-between">
+              <span>Total Calculated Stat Matrix</span>
+              <i class="fa-solid fa-chart-simple text-fuchsia-400"></i>
+            </h4>
+            <p class="text-[11px] text-slate-500">Live stats calculated from base style attributes + passive ability modifiers.</p>
+
+            <!-- Stat Bar List -->
+            <div id="stat-matrix-container" class="space-y-2.5 pt-2">
+              <!-- Dynamic Insertion -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory Browser Panel (7 Cols) -->
+        <div class="lg:col-span-7 cyber-border rounded-2xl p-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2">
+            <div>
+              <h3 class="font-display font-extrabold text-2xl text-white flex items-center gap-2">
+                <i class="fa-solid fa-boxes-stacked text-fuchsia-400"></i> INVENTORY COLLECTION
+              </h3>
+              <p class="text-xs text-slate-400">Select items from your owned roster to equip or inspect.</p>
+            </div>
+            
+            <div class="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <button onclick="setInventoryCategory('styles')" id="inv-cat-styles" class="px-3 py-1 rounded-lg font-display font-bold text-xs bg-cyan-600 text-white">STYLES</button>
+              <button onclick="setInventoryCategory('abilities')" id="inv-cat-abilities" class="px-3 py-1 rounded-lg font-display font-bold text-xs text-slate-400 hover:text-white">ABILITIES</button>
+            </div>
+          </div>
+
+          <!-- Inventory Items Grid -->
+          <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-4">
+            <!-- JS Insertion -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== WHEEL OF FORTUNE SPINNER MODAL ==================== -->
+  <div id="modal-spinner" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="cyber-border bg-slate-950 rounded-3xl p-6 sm:p-8 max-w-lg w-full text-center relative shadow-2xl scale-95 transition-transform duration-300 transform" id="spinner-modal-card">
+      
+      <button onclick="closeSpinnerModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="font-display font-black text-2xl sm:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 tracking-wider">
+        BUDGET WHEEL SPINNER
+      </h3>
+      <p class="text-xs text-slate-400 mb-4">Spin to roll your money budget! Will you hit $1000 or BROKE?</p>
+
+      <!-- Wheel Visual Canvas -->
+      <div class="relative w-64 h-64 sm:w-72 sm:h-72 mx-auto my-2">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-30 text-amber-400 text-3xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+          <i class="fa-solid fa-caret-down"></i>
+        </div>
+        <canvas id="wheelCanvas" width="300" height="300" class="w-full h-full rounded-full shadow-2xl shadow-amber-500/10"></canvas>
+      </div>
+
+      <!-- Result Banner -->
+      <div id="spinner-result" class="min-h-[42px] my-2 flex items-center justify-center font-display font-extrabold text-xl text-amber-400">
+        Click below to spin!
+      </div>
+
+      <!-- Action Button -->
+      <button id="btn-spin" onclick="spinWheel()" class="w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-display font-black text-xl py-3 rounded-2xl shadow-lg shadow-amber-500/20 active:scale-95 transition">
+        SPIN FOR BUDGET
+      </button>
+
+      <!-- Custom Budget Override Input for Quick Testing -->
+      <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+        <span>Custom Budget Override:</span>
+        <div class="flex items-center gap-1.5">
+          <input type="number" id="custom-budget-input" placeholder="e.g. 2500" class="w-24 bg-slate-900 border border-slate-700 px-2 py-1 rounded text-white text-xs">
+          <button onclick="applyCustomBudget()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 rounded text-xs font-bold">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT BUILD CODE MODAL -->
+  <div id="modal-export" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="cyber-border bg-slate-950 rounded-2xl p-6 max-w-md w-full relative space-y-4">
+      <button onclick="closeExportModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h3 class="font-display font-bold text-xl text-cyan-400 flex items-center gap-2">
+        <i class="fa-solid fa-code"></i> EXPORT LOADOUT CODE
+      </h3>
+      <p class="text-xs text-slate-400">Copy this loadout string to share with friends or backup your build.</p>
+      
+      <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-xs text-amber-300 select-all break-all" id="export-code-box">
+        <!-- JS Code output -->
+      </div>
+
+      <button onclick="copyExportCode()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-display font-bold py-2 rounded-xl text-sm transition">
+        <i class="fa-solid fa-copy"></i> Copy to Clipboard
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION SYSTEM -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 border border-cyan-500/50 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+    <div id="toast-icon" class="text-xl text-cyan-400"><i class="fa-solid fa-circle-check"></i></div>
+    <div>
+      <h5 id="toast-title" class="font-display font-bold text-sm text-cyan-400">Success!</h5>
+      <p id="toast-msg" class="text-xs text-slate-300">Action performed.</p>
+    </div>
+  </div>
+
+  <!-- MAIN JS APPLICATION LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. EXPANDED CATALOG DATA (25+ Styles, 17+ Abilities)
+       ========================================================================== */
+    const SHOP_DATA = {
+      styles: [
+        // COMMON & UNCOMMON
+        {
+          id: 'style_kuzee', name: 'Kuzee', rarity: 'Common', type: 'Setter', price: 100,
+          quote: '"Every spike begins with a clean pass."',
+          stats: { spike: 45, jump: 50, speed: 55, bump: 60, set: 65, block: 40, dive: 50, serve: 45 },
+          icon: 'fa-user'
+        },
+        {
+          id: 'style_yabu', name: 'Yabu', rarity: 'Common', type: 'Spiker', price: 120,
+          quote: '"Hit it as hard as you can!"',
+          stats: { spike: 65, jump: 55, speed: 50, bump: 45, set: 40, block: 45, dive: 40, serve: 50 },
+          icon: 'fa-hand-fist'
+        },
+        {
+          id: 'style_boki', name: 'Boki', rarity: 'Common', type: 'Libero', price: 150,
+          quote: '"The ball won\'t touch the court on my watch."',
+          stats: { spike: 35, jump: 60, speed: 70, bump: 70, set: 50, block: 30, dive: 75, serve: 40 },
+          icon: 'fa-shield'
+        },
+        {
+          id: 'style_aru', name: 'Aru', rarity: 'Common', type: 'Blocker', price: 180,
+          quote: '"Reading the opponent is half the battle."',
+          stats: { spike: 50, jump: 60, speed: 45, bump: 50, set: 45, block: 70, dive: 40, serve: 50 },
+          icon: 'fa-cubes'
+        },
+        {
+          id: 'style_tobi', name: 'Tobi', rarity: 'Common', type: 'All-Rounder', price: 200,
+          quote: '"Solid fundamentals all day long."',
+          stats: { spike: 55, jump: 55, speed: 55, bump: 55, set: 55, block: 55, dive: 55, serve: 55 },
+          icon: 'fa-dharmachakra'
+        },
+
+        // RARE
+        {
+          id: 'style_sawamura', name: 'Sawamura', rarity: 'Rare', type: 'Captain Libero', price: 300,
+          quote: '"We are the ground that supports the team!"',
+          stats: { spike: 60, jump: 65, speed: 75, bump: 85, set: 60, block: 65, dive: 85, serve: 65 },
+          icon: 'fa-shield-halved'
+        },
+        {
+          id: 'style_tanaka', name: 'Tanaka', rarity: 'Rare', type: 'Wing Spiker', price: 350,
+          quote: '"Cross spikes or cut shots, I\'ll blast through!"',
+          stats: { spike: 82, jump: 75, speed: 70, bump: 60, set: 45, block: 65, dive: 60, serve: 70 },
+          icon: 'fa-fire'
+        },
+        {
+          id: 'style_kyotani', name: 'Kyotani', rarity: 'Rare', type: 'Mad Dog Spiker', price: 400,
+          quote: '"Full power on every single touch!"',
+          stats: { spike: 86, jump: 78, speed: 72, bump: 50, set: 40, block: 60, dive: 55, serve: 80 },
+          icon: 'fa-dog'
+        },
+        {
+          id: 'style_yamamoto', name: 'Yamamoto', rarity: 'Rare', type: 'Defensive Ace', price: 420,
+          quote: '"Nekoma\'s heart never lets a ball die!"',
+          stats: { spike: 78, jump: 70, speed: 74, bump: 80, set: 55, block: 70, dive: 80, serve: 65 },
+          icon: 'fa-cat'
+        },
+        {
+          id: 'style_watari', name: 'Watari', rarity: 'Rare', type: 'Secondary Setter', price: 450,
+          quote: '"A libero who can set doubles our offense."',
+          stats: { spike: 50, jump: 68, speed: 78, bump: 82, set: 80, block: 50, dive: 82, serve: 60 },
+          icon: 'fa-hands-holding'
+        },
+        {
+          id: 'style_iwaizumi', name: 'Iwaizumi', rarity: 'Rare', type: 'Ace Spiker', price: 500,
+          quote: '"100% force, no hesitation!"',
+          stats: { spike: 85, jump: 80, speed: 75, bump: 72, set: 60, block: 72, dive: 70, serve: 82 },
+          icon: 'fa-dumbbell'
+        },
+
+        // LEGENDARY
+        {
+          id: 'style_hinata', name: 'Hinata', rarity: 'Legendary', type: 'Decoy Spiker', price: 650,
+          quote: '"I can fly! Bring the set higher!"',
+          stats: { spike: 88, jump: 98, speed: 95, bump: 65, set: 50, block: 70, dive: 75, serve: 70 },
+          icon: 'fa-crow'
+        },
+        {
+          id: 'style_kageyama', name: 'Kageyama', rarity: 'Legendary', type: 'King Setter', price: 700,
+          quote: '"I will toss to anyone who is essential to winning."',
+          stats: { spike: 80, jump: 85, speed: 85, bump: 80, set: 98, block: 82, dive: 78, serve: 92 },
+          icon: 'fa-crown'
+        },
+        {
+          id: 'style_nishinoya', name: 'Nishinoya', rarity: 'Legendary', type: 'Guardian Libero', price: 750,
+          quote: '"Rolling Thunder Again!!"',
+          stats: { spike: 40, jump: 88, speed: 96, bump: 99, set: 78, block: 30, dive: 99, serve: 50 },
+          icon: 'fa-bolt'
+        },
+        {
+          id: 'style_kozume', name: 'Kozume', rarity: 'Legendary', type: 'Brain Setter', price: 800,
+          quote: '"We are the blood that flows smoothly to brain..."',
+          stats: { spike: 65, jump: 65, speed: 70, bump: 85, set: 96, block: 75, dive: 80, serve: 75 },
+          icon: 'fa-brain'
+        },
+        {
+          id: 'style_kuroo', name: 'Kuroo', rarity: 'Legendary', type: 'Read Blocker', price: 850,
+          quote: '"Blocking isn\'t stopping the ball, it\'s guiding it."',
+          stats: { spike: 80, jump: 85, speed: 78, bump: 82, set: 65, block: 96, dive: 75, serve: 80 },
+          icon: 'fa-hand'
+        },
+        {
+          id: 'style_bokuto', name: 'Bokuto', rarity: 'Legendary', type: 'Owl Ace', price: 900,
+          quote: '"HEY HEY HEY! Watch my cross spike!"',
+          stats: { spike: 94, jump: 90, speed: 84, bump: 70, set: 55, block: 78, dive: 68, serve: 88 },
+          icon: 'fa-feather'
+        },
+
+        // GODLY
+        {
+          id: 'style_ushijima', name: 'Ushijima', rarity: 'Godly', type: 'Super Cannon', price: 1200,
+          quote: '"Left-handed spin that twists defenders completely."',
+          stats: { spike: 99, jump: 92, speed: 82, bump: 78, set: 60, block: 85, dive: 70, serve: 98 },
+          icon: 'fa-meteor'
+        },
+        {
+          id: 'style_oikawa', name: 'Oikawa', rarity: 'Godly', type: 'Grand Monarch', price: 1300,
+          quote: '"Talent is something you make bloom!"',
+          stats: { spike: 88, jump: 90, speed: 88, bump: 85, set: 99, block: 82, dive: 82, serve: 99 },
+          icon: 'fa-wand-magic-sparkles'
+        },
+        {
+          id: 'style_atsumu', name: 'Atsumu', rarity: 'Godly', type: 'Dual Threat', price: 1400,
+          quote: '"Jump serve or float serve? Pick your poison."',
+          stats: { spike: 86, jump: 88, speed: 86, bump: 82, set: 99, block: 80, dive: 80, serve: 98 },
+          icon: 'fa-masks-theater'
+        },
+        {
+          id: 'style_hoshiumi', name: 'Hoshiumi', rarity: 'Godly', type: 'Little Giant', price: 1500,
+          quote: '"Being small means having no aerial limits!"',
+          stats: { spike: 96, jump: 99, speed: 94, bump: 90, set: 88, block: 86, dive: 88, serve: 92 },
+          icon: 'fa-feather-pointed'
+        },
+
+        // SECRET
+        {
+          id: 'style_sanu', name: 'Sanu', rarity: 'Secret', type: 'Apex Phenom', price: 2500,
+          quote: '"Unmatchable airborne tilt physics and court dominance."',
+          stats: { spike: 100, jump: 100, speed: 100, bump: 95, set: 90, block: 95, dive: 95, serve: 100 },
+          icon: 'fa-dragon'
+        },
+        {
+          id: 'style_kumo', name: 'Kumo', rarity: 'Secret', type: 'Celestial Libero', price: 2800,
+          quote: '"Moonlight receives that float back into perfect setter hands."',
+          stats: { spike: 60, jump: 98, speed: 100, bump: 100, set: 95, block: 60, dive: 100, serve: 85 },
+          icon: 'fa-cloud-moon'
+        },
+        {
+          id: 'style_ts_hinata', name: 'TS Hinata', rarity: 'Secret', type: 'Ninja Pro', price: 3500,
+          quote: '"From Brazil beach volleyball to world champion spiker."',
+          stats: { spike: 98, jump: 100, speed: 100, bump: 98, set: 90, block: 88, dive: 99, serve: 95 },
+          icon: 'fa-user-ninja'
+        },
+        {
+          id: 'style_demon_sanu', name: 'Demon Sanu', rarity: 'Secret', type: 'Mythic Overlord', price: 5000,
+          quote: '"Absolute annihilation on every touch. Unstoppable."',
+          stats: { spike: 105, jump: 105, speed: 105, bump: 100, set: 98, block: 102, dive: 100, serve: 108 },
+          icon: 'fa-skull-crossbones'
+        }
+      ],
+
+      abilities: [
+        // COMMON
+        {
+          id: 'abil_thunder', name: 'Rolling Thunder', rarity: 'Common', type: 'Active Receive', price: 100,
+          cooldown: '8s', boost: { bump: 15, dive: 20 }, quote: 'A stylish sliding dive that saves ground balls.',
+          icon: 'fa-wind'
+        },
+        {
+          id: 'abil_sprint', name: 'Super Sprint', rarity: 'Common', type: 'Active Burst', price: 120,
+          cooldown: '10s', boost: { speed: 20 }, quote: 'Instant burst of speed to cover court distance.',
+          icon: 'fa-person-running'
+        },
+        {
+          id: 'abil_recovery', name: 'Quick Recovery', rarity: 'Common', type: 'Passive', price: 150,
+          cooldown: 'Passive', boost: { speed: 10, dive: 10 }, quote: 'Reduces recovery animation time after dives.',
+          icon: 'fa-arrows-rotate'
+        },
+        {
+          id: 'abil_spirit', name: 'Team Spirit', rarity: 'Common', type: 'Passive', price: 180,
+          cooldown: 'Passive', boost: { set: 10, bump: 10 }, quote: 'Slightly enhances pass accuracy for teammates.',
+          icon: 'fa-people-group'
+        },
+
+        // RARE
+        {
+          id: 'abil_boom_jump', name: 'Boom Jump', rarity: 'Rare', type: 'Active Jump', price: 250,
+          cooldown: '12s', boost: { jump: 25 }, quote: 'Loads vertical momentum for a massive jump height.',
+          icon: 'fa-arrows-up-to-line'
+        },
+        {
+          id: 'abil_moonball', name: 'Moonball', rarity: 'Rare', type: 'Active Shot', price: 300,
+          cooldown: '14s', boost: { spike: 15, set: 15 }, quote: 'High ceiling-reaching arc that drops past blockers.',
+          icon: 'fa-moon'
+        },
+        {
+          id: 'abil_slide_receive', name: 'Slide Receive', rarity: 'Rare', type: 'Active Receive', price: 320,
+          cooldown: '9s', boost: { dive: 25, bump: 15 }, quote: 'Low floor glide that absorbs heavy spike force.',
+          icon: 'fa-person-sliding'
+        },
+
+        // LEGENDARY
+        {
+          id: 'abil_steel_block', name: 'Steel Block', rarity: 'Legendary', type: 'Active Block', price: 550,
+          cooldown: '15s', boost: { block: 35 }, quote: 'Fortifies block reach to reflect spikes downward.',
+          icon: 'fa-cubes font-bold'
+        },
+        {
+          id: 'abil_zero_gravity', name: 'Zero Gravity Set', rarity: 'Legendary', type: 'Active Set', price: 600,
+          cooldown: '16s', boost: { set: 35, spike: 10 }, quote: 'Freezes ball briefly in mid-air for easy spikes.',
+          icon: 'fa-stopwatch font-bold'
+        },
+        {
+          id: 'abil_delay_spike', name: 'Delay Spike', rarity: 'Legendary', type: 'Active Spike', price: 650,
+          cooldown: '14s', boost: { spike: 30, jump: 15 }, quote: 'Hangs in the air extra frame before hitting.',
+          icon: 'fa-clock'
+        },
+
+        // GODLY
+        {
+          id: 'abil_curve_spike', name: 'Curve Spike', rarity: 'Godly', type: 'Active Spike', price: 900,
+          cooldown: '18s', boost: { spike: 40, serve: 20 }, quote: 'Applies violent sideway curve to bypass blocks.',
+          icon: 'fa-dharmachakra'
+        },
+        {
+          id: 'abil_divine_strength', name: 'Divine Strength', rarity: 'Godly', type: 'Passive', price: 1000,
+          cooldown: 'Passive', boost: { spike: 35, serve: 30 }, quote: 'Massively boosts baseline spike and serve impact.',
+          icon: 'fa-hand-fist text-amber-400'
+        },
+        {
+          id: 'abil_redirection_jump', name: 'Redirection Jump', rarity: 'Godly', type: 'Active Jump', price: 1100,
+          cooldown: '15s', boost: { jump: 35, speed: 20 }, quote: 'Changes airborne direction mid-jump.',
+          icon: 'fa-shuffle'
+        },
+
+        // SECRET
+        {
+          id: 'abil_shield_breaker', name: 'Shield Breaker', rarity: 'Secret', type: 'Active Ultimate', price: 1800,
+          cooldown: '22s', boost: { spike: 50, serve: 35 }, quote: 'Blasts through block attempts with explosive force.',
+          icon: 'fa-burst'
+        },
+        {
+          id: 'abil_magnetic_pull', name: 'Magnetic Pull', rarity: 'Secret', type: 'Passive Aura', price: 2200,
+          cooldown: 'Passive', boost: { speed: 30, bump: 30, dive: 30 }, quote: 'Attracts incoming balls toward your hit zone.',
+          icon: 'fa-magnet'
+        },
+        {
+          id: 'abil_time_stop', name: 'Time Stop', rarity: 'Secret', type: 'Mythic Active', price: 3000,
+          cooldown: '30s', boost: { spike: 45, jump: 40, set: 40 }, quote: 'Briefly slows time while you are airborne.',
+          icon: 'fa-hourglass-start'
+        }
+      ]
+    };
+
+    const WHEEL_SLICES = [
+      { label: '$100', value: 100, color: '#0f172a', textColor: '#38bdf8' },
+      { label: '$200', value: 200, color: '#1e293b', textColor: '#38bdf8' },
+      { label: '$300', value: 300, color: '#0f172a', textColor: '#38bdf8' },
+      { label: '$500', value: 500, color: '#1e293b', textColor: '#c084fc' },
+      { label: '$750', value: 750, color: '#0f172a', textColor: '#c084fc' },
+      { label: '$1000', value: 1000, color: '#1e293b', textColor: '#facc15' },
+      { label: 'RICH', value: 'RICH', color: '#854d0e', textColor: '#fef08a' },
+      { label: 'BROKE', value: 'BROKE', color: '#7f1d1d', textColor: '#fca5a5' }
+    ];
+
+    /* ==========================================================================
+       2. APP STATE
+       ========================================================================== */
+    let state = {
+      budget: 1000,
+      isRich: false,
+      isBroke: false,
+      ownedItems: ['style_kuzee'],
+      loadout: {
+        style: 'style_kuzee',
+        abilities: []
+      },
+      currentTab: 'shop',
+      shopCategory: 'styles',
+      inventoryCategory: 'styles',
+      soundEnabled: true
+    };
+
+    /* ==========================================================================
+       3. SYNTHESIZED WEB AUDIO SFX
+       ========================================================================== */
+    let audioCtx = null;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSfx(type) {
+      if (!state.soundEnabled) return;
+      initAudioContext();
+      if (!audioCtx) return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'tick') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } else if (type === 'buy') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'win') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.setValueAtTime(130, now + 0.1);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+    }
+
+    function toggleAudio() {
+      state.soundEnabled = !state.soundEnabled;
+      document.getElementById('sound-icon').className = state.soundEnabled ? 'fa-solid fa-volume-high text-cyan-400' : 'fa-solid fa-volume-xmark text-slate-500';
+    }
+
+    /* ==========================================================================
+       4. UI RENDERING & TABS
+       ========================================================================== */
+    function updateBudgetUI() {
+      const bText = document.getElementById('budget-text');
+      if (state.isRich) {
+        bText.innerText = '∞ (RICH)';
+        bText.className = 'font-display font-extrabold text-xl sm:text-2xl text-amber-300 text-glow-yellow animate-pulse';
+      } else if (state.isBroke) {
+        bText.innerText = '$0 (BROKE)';
+        bText.className = 'font-display font-extrabold text-xl sm:text-2xl text-red-400 text-glow-red';
+      } else {
+        bText.innerText = `$${state.budget}`;
+        bText.className = 'font-display font-extrabold text-xl sm:text-2xl text-emerald-400 text-glow-yellow';
+      }
+      renderShopGrid();
+    }
+
+    function switchTab(tabId) {
+      state.currentTab = tabId;
+      document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.className = 'nav-tab px-4 py-2 rounded-xl font-display font-bold text-sm flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition';
+      });
+
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = 'nav-tab px-4 py-2 rounded-xl font-display font-bold text-sm flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/20';
+      }
+
+      if (tabId === 'loadout') renderInventory();
+    }
+
+    function setShopCategory(cat) {
+      state.shopCategory = cat;
+      document.getElementById('cat-btn-styles').className = cat === 'styles' ? 'px-4 py-2 rounded-lg font-display font-bold text-sm bg-cyan-600 text-white transition' : 'px-4 py-2 rounded-lg font-display font-bold text-sm text-slate-400 hover:text-white transition';
+      document.getElementById('cat-btn-abilities').className = cat === 'abilities' ? 'px-4 py-2 rounded-lg font-display font-bold text-sm bg-cyan-600 text-white transition' : 'px-4 py-2 rounded-lg font-display font-bold text-sm text-slate-400 hover:text-white transition';
+      renderShopGrid();
+    }
+
+    function getRarityBadgeHtml(rarity) {
+      const cls = `badge-${rarity.toLowerCase()}`;
+      return `<span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${cls}">${rarity}</span>`;
+    }
+
+    /* ==========================================================================
+       5. CATALOG SHOP LOGIC
+       ========================================================================== */
+    function filterShopItems() {
+      renderShopGrid();
+    }
+
+    function renderShopGrid() {
+      document.getElementById('count-styles').innerText = SHOP_DATA.styles.length;
+      document.getElementById('count-abilities').innerText = SHOP_DATA.abilities.length;
+
+      const grid = document.getElementById('shop-grid');
+      grid.innerHTML = '';
+
+      const items = SHOP_DATA[state.shopCategory];
+      const rarityFilter = document.getElementById('rarity-filter').value;
+      const sortFilter = document.getElementById('sort-filter').value;
+      const searchQuery = document.getElementById('shop-search').value.toLowerCase().trim();
+
+      let filtered = items.filter(item => {
+        const matchesRarity = rarityFilter === 'ALL' || item.rarity === rarityFilter;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery) || 
+                              item.type.toLowerCase().includes(searchQuery) ||
+                              (item.quote && item.quote.toLowerCase().includes(searchQuery));
+        return matchesRarity && matchesSearch;
+      });
+
+      // Sorting
+      filtered.sort((a, b) => {
+        if (sortFilter === 'price_asc') return a.price - b.price;
+        if (sortFilter === 'price_desc') return b.price - a.price;
+        if (sortFilter === 'name_asc') return a.name.localeCompare(b.name);
+        if (sortFilter === 'stat_desc') {
+          const maxA = a.stats ? Math.max(...Object.values(a.stats)) : 0;
+          const maxB = b.stats ? Math.max(...Object.values(b.stats)) : 0;
+          return maxB - maxA;
+        }
+        return 0;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-500 font-display font-bold text-lg">No matching items found.</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const isOwned = state.ownedItems.includes(item.id);
+        let canAfford = state.isRich || (state.budget >= item.price && !state.isBroke);
+        if (state.isBroke && item.rarity === 'Common') canAfford = true;
+
+        const card = document.createElement('div');
+        card.className = `cyber-border rounded-2xl p-4 flex flex-col justify-between relative group hover:border-cyan-500/70 transition duration-300`;
+
+        // Render Stats Bars if Style
+        let detailsHtml = '';
+        if (item.stats) {
+          const keys = ['spike', 'jump', 'speed', 'block', 'bump', 'set', 'dive', 'serve'];
+          const barItems = keys.map(k => {
+            const val = item.stats[k] || 0;
+            const pct = Math.min(100, Math.max(10, val));
+            return `
+              <div>
+                <div class="flex justify-between text-[10px] text-slate-400 font-semibold mb-0.5 uppercase">
+                  <span>${k}</span>
+                  <span class="text-white font-bold">${val}</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                  <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style="width: ${pct}%"></div>
+                </div>
+              </div>`;
+          }).join('');
+
+          detailsHtml = `<div class="grid grid-cols-2 gap-x-3 gap-y-1.5 my-3 bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">${barItems}</div>`;
+        } else if (item.boost) {
+          const boosts = Object.entries(item.boost).map(([k,v]) => `<span class="text-emerald-400 font-bold">+${v} ${k.toUpperCase()}</span>`).join(' • ');
+          detailsHtml = `
+            <div class="my-3 bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-xs text-slate-300 space-y-1">
+              <div><span class="text-slate-400 font-bold">Cooldown:</span> <span class="text-cyan-400">${item.cooldown}</span></div>
+              <div><span class="text-slate-400 font-bold">Stat Buffs:</span> ${boosts}</div>
+            </div>`;
+        }
+
+        let actionBtn = '';
+        if (isOwned) {
+          actionBtn = `<button disabled class="w-full bg-slate-900 border border-slate-800 text-slate-500 font-display font-bold py-2 rounded-xl text-xs cursor-not-allowed">OWNED</button>`;
+        } else if (!canAfford) {
+          actionBtn = `<button disabled class="w-full bg-slate-950 border border-slate-800 text-slate-600 font-display font-bold py-2 rounded-xl text-xs cursor-not-allowed">CANNOT AFFORD</button>`;
+        } else {
+          actionBtn = `<button onclick="buyItem('${item.id}', '${state.shopCategory}')" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-display font-black py-2 rounded-xl text-xs shadow-md shadow-cyan-500/20 active:scale-95 transition">BUY ($${item.price})</button>`;
+        }
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-cyan-400 text-base">
+                  <i class="fa-solid ${item.icon}"></i>
+                </div>
+                <div>
+                  <h4 class="font-display font-black text-base text-white leading-tight">${item.name}</h4>
+                  <span class="text-[10px] text-slate-400 font-semibold">${item.type}</span>
+                </div>
+              </div>
+              ${getRarityBadgeHtml(item.rarity)}
+            </div>
+            
+            <p class="text-[11px] text-slate-400 italic mt-2.5 line-clamp-2">${item.quote || ''}</p>
+            ${detailsHtml}
+          </div>
+
+          <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+            <span class="font-display font-extrabold text-sm text-amber-400">$${item.price}</span>
+            <div class="w-2/3">${actionBtn}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function buyItem(itemId, category) {
+      const list = SHOP_DATA[category];
+      const item = list.find(i => i.id === itemId);
+
+      if (!item || state.ownedItems.includes(itemId)) return;
+
+      if (!state.isRich) {
+        if (state.isBroke && item.rarity !== 'Common') {
+          showToast('BROKE Status!', 'You can only buy Common items while BROKE.', true);
+          playSfx('error');
+          return;
+        }
+        if (state.budget < item.price) {
+          showToast('Insufficient Funds!', 'Spin the wheel to get more budget.', true);
+          playSfx('error');
+          return;
+        }
+        state.budget -= item.price;
+      }
+
+      state.ownedItems.push(itemId);
+      playSfx('buy');
+      showToast('Item Purchased!', `You unlocked ${item.name}!`);
+      updateBudgetUI();
+    }
+
+    /* ==========================================================================
+       6. INVENTORY & LOADOUT DECK MANAGER
+       ========================================================================== */
+    function setInventoryCategory(cat) {
+      state.inventoryCategory = cat;
+      document.getElementById('inv-cat-styles').className = cat === 'styles' ? 'px-3 py-1 rounded-lg font-display font-bold text-xs bg-cyan-600 text-white' : 'px-3 py-1 rounded-lg font-display font-bold text-xs text-slate-400 hover:text-white';
+      document.getElementById('inv-cat-abilities').className = cat === 'abilities' ? 'px-3 py-1 rounded-lg font-display font-bold text-xs bg-cyan-600 text-white' : 'px-3 py-1 rounded-lg font-display font-bold text-xs text-slate-400 hover:text-white';
+      renderInventory();
+    }
+
+    function renderInventory() {
+      renderLoadoutDeck();
+      renderStatMatrix();
+
+      const grid = document.getElementById('inventory-grid');
+      grid.innerHTML = '';
+
+      const allItems = SHOP_DATA[state.inventoryCategory];
+      const owned = allItems.filter(item => state.ownedItems.includes(item.id));
+
+      if (owned.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500 text-xs">No owned items in this category. Visit Catalog Store!</div>`;
+        return;
+      }
+
+      owned.forEach(item => {
+        const isEquippedStyle = state.loadout.style === item.id;
+        const isEquippedAbility = state.loadout.abilities.includes(item.id);
+        const isEquipped = isEquippedStyle || isEquippedAbility;
+
+        const card = document.createElement('div');
+        card.className = `bg-slate-950 border ${isEquipped ? 'border-cyan-500/80 bg-cyan-950/20' : 'border-slate-800'} rounded-xl p-3 flex items-center justify-between gap-3`;
+
+        let actionBtn = '';
+        if (state.inventoryCategory === 'styles') {
+          if (isEquippedStyle) {
+            actionBtn = `<span class="text-[10px] font-bold text-cyan-400 px-2 py-1 bg-cyan-950 border border-cyan-800 rounded-lg">EQUIPPED</span>`;
+          } else {
+            actionBtn = `<button onclick="equipStyle('${item.id}')" class="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-display font-bold text-xs rounded-lg transition">EQUIP</button>`;
+          }
+        } else {
+          if (isEquippedAbility) {
+            actionBtn = `<button onclick="unequipAbility('${item.id}')" class="px-3 py-1 bg-red-950 text-red-400 border border-red-800 hover:bg-red-900 font-display font-bold text-xs rounded-lg transition">UNEQUIP</button>`;
+          } else {
+            actionBtn = `<button onclick="equipAbility('${item.id}')" class="px-3 py-1 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-display font-bold text-xs rounded-lg transition">EQUIP</button>`;
+          }
+        }
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-sm text-cyan-400">
+              <i class="fa-solid ${item.icon}"></i>
+            </div>
+            <div>
+              <h5 class="font-display font-bold text-sm text-white">${item.name}</h5>
+              <span class="text-[10px] text-slate-400">${item.rarity} ${item.type}</span>
+            </div>
+          </div>
+          <div>${actionBtn}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function equipStyle(id) {
+      state.loadout.style = id;
+      playSfx('buy');
+      renderInventory();
+    }
+
+    function equipAbility(id) {
+      if (state.loadout.abilities.length >= 2) {
+        showToast('Slots Full', 'Unequip an active ability first.', true);
+        playSfx('error');
+        return;
+      }
+      if (!state.loadout.abilities.includes(id)) {
+        state.loadout.abilities.push(id);
+        playSfx('buy');
+        renderInventory();
+      }
+    }
+
+    function unequipAbility(id) {
+      state.loadout.abilities = state.loadout.abilities.filter(aId => aId !== id);
+      renderInventory();
+    }
+
+    function renderLoadoutDeck() {
+      // Style Slot
+      const slotStyle = document.getElementById('slot-style');
+      const styleObj = SHOP_DATA.styles.find(s => s.id === state.loadout.style);
+      if (styleObj) {
+        slotStyle.className = "bg-slate-900 border-2 border-cyan-500 rounded-xl p-3 flex items-center justify-between";
+        slotStyle.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-cyan-400 text-base">
+              <i class="fa-solid ${styleObj.icon}"></i>
+            </div>
+            <div>
+              <h4 class="font-display font-extrabold text-base text-white">${styleObj.name}</h4>
+              <p class="text-xs text-cyan-400">${styleObj.rarity} ${styleObj.type}</p>
+            </div>
+          </div>
+          ${getRarityBadgeHtml(styleObj.rarity)}
+        `;
+      }
+
+      // Ability Slots
+      for (let i = 0; i < 2; i++) {
+        const slotEl = document.getElementById(`slot-ability-${i}`);
+        const abId = state.loadout.abilities[i];
+        if (abId) {
+          const abObj = SHOP_DATA.abilities.find(a => a.id === abId);
+          slotEl.className = "bg-slate-900 border-2 border-fuchsia-500 rounded-xl p-2.5 flex items-center justify-between";
+          slotEl.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-slate-950 border border-slate-700 flex items-center justify-center text-xs text-fuchsia-400">
+                <i class="fa-solid ${abObj.icon}"></i>
+              </div>
+              <div>
+                <h5 class="font-display font-bold text-xs text-white">${abObj.name}</h5>
+                <p class="text-[10px] text-fuchsia-400">${abObj.type} (${abObj.cooldown})</p>
+              </div>
+            </div>
+            <button onclick="unequipAbility('${abId}')" class="text-slate-500 hover:text-red-400 text-xs px-2"><i class="fa-solid fa-xmark"></i></button>
+          `;
+        } else {
+          slotEl.className = "bg-slate-950/80 border-2 border-dashed border-slate-800 rounded-2xl p-3 flex items-center justify-between min-h-[68px]";
+          slotEl.innerHTML = `<span class="text-slate-500 text-xs italic">Ability Slot ${i+1} Empty</span>`;
+        }
+      }
+
+      // Investment Cost
+      let cost = styleObj ? styleObj.price : 0;
+      state.loadout.abilities.forEach(aId => {
+        const ab = SHOP_DATA.abilities.find(a => a.id === aId);
+        if (ab) cost += ab.price;
+      });
+      document.getElementById('loadout-cost-text').innerText = `$${cost}`;
+    }
+
+    function calculateCombinedStats() {
+      const styleObj = SHOP_DATA.styles.find(s => s.id === state.loadout.style);
+      let total = { spike: 0, jump: 0, speed: 0, block: 0, bump: 0, set: 0, dive: 0, serve: 0 };
+
+      if (styleObj && styleObj.stats) {
+        Object.keys(total).forEach(k => {
+          total[k] = styleObj.stats[k] || 0;
+        });
+      }
+
+      state.loadout.abilities.forEach(aId => {
+        const ab = SHOP_DATA.abilities.find(a => a.id === aId);
+        if (ab && ab.boost) {
+          Object.entries(ab.boost).forEach(([k, v]) => {
+            if (total[k] !== undefined) total[k] += v;
+          });
+        }
+      });
+
+      return total;
+    }
+
+    function renderStatMatrix() {
+      const container = document.getElementById('stat-matrix-container');
+      container.innerHTML = '';
+
+      const total = calculateCombinedStats();
+      const keys = ['spike', 'jump', 'speed', 'block', 'bump', 'set', 'dive', 'serve'];
+
+      keys.forEach(k => {
+        const val = total[k];
+        const pct = Math.min(100, Math.max(0, (val / 140) * 100)); // Normalized scale
+
+        const row = document.createElement('div');
+        row.className = "space-y-1";
+        row.innerHTML = `
+          <div class="flex justify-between text-xs font-semibold">
+            <span class="uppercase text-slate-400">${k}</span>
+            <span class="text-white font-bold">${val}</span>
+          </div>
+          <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+            <div class="h-full bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-amber-400 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    /* ==========================================================================
+       7. LOADOUT PRESETS & EXPORT BUILD
+       ========================================================================== */
+    function applyPreset(presetType) {
+      if (presetType === 'budget') {
+        state.loadout.style = 'style_kuzee';
+        state.loadout.abilities = ['abil_thunder', 'abil_sprint'];
+      } else if (presetType === 'spiker') {
+        state.loadout.style = 'style_bokuto';
+        state.loadout.abilities = ['abil_boom_jump', 'abil_curve_spike'];
+      } else if (presetType === 'wall') {
+        state.loadout.style = 'style_kuroo';
+        state.loadout.abilities = ['abil_steel_block', 'abil_slide_receive'];
+      } else if (presetType === 'godly') {
+        state.loadout.style = 'style_demon_sanu';
+        state.loadout.abilities = ['abil_shield_breaker', 'abil_time_stop'];
+      }
+
+      // Ensure owned
+      if (!state.ownedItems.includes(state.loadout.style)) state.ownedItems.push(state.loadout.style);
+      state.loadout.abilities.forEach(aId => {
+        if (!state.ownedItems.includes(aId)) state.ownedItems.push(aId);
+      });
+
+      playSfx('buy');
+      showToast('Preset Applied!', `Loaded '${presetType.toUpperCase()}' build deck.`);
+      renderInventory();
+    }
+
+    function exportLoadoutCode() {
+      const codeData = {
+        s: state.loadout.style,
+        a: state.loadout.abilities
+      };
+      const jsonStr = btoa(JSON.stringify(codeData));
+
+      document.getElementById('export-code-box').innerText = `VL-BUILD-${jsonStr}`;
+      
+      const modal = document.getElementById('modal-export');
+      modal.classList.remove('pointer-events-none', 'opacity-0');
+    }
+
+    function closeExportModal() {
+      document.getElementById('modal-export').classList.add('pointer-events-none', 'opacity-0');
+    }
+
+    function copyExportCode() {
+      const text = document.getElementById('export-code-box').innerText;
+      const tempInput = document.createElement('input');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      showToast('Copied!', 'Build code copied to clipboard.');
+    }
+
+    /* ==========================================================================
+       8. WHEEL OF FORTUNE CANVAS SPINNER
+       ========================================================================== */
+    let wheelAngle = 0;
+    let isSpinning = false;
+
+    function drawWheel() {
+      const canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const numSlices = WHEEL_SLICES.length;
+      const arc = (2 * Math.PI) / numSlices;
+      const radius = canvas.width / 2;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < numSlices; i++) {
+        const angle = wheelAngle + i * arc;
+        ctx.beginPath();
+        ctx.fillStyle = WHEEL_SLICES[i].color;
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius - 8, angle, angle + arc);
+        ctx.lineTo(radius, radius);
+        ctx.fill();
+
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = WHEEL_SLICES[i].textColor;
+        ctx.font = "bold 15px Orbitron, sans-serif";
+        ctx.fillText(WHEEL_SLICES[i].label, radius - 24, 5);
+        ctx.restore();
+      }
+
+      // Outer Ring
+      ctx.beginPath();
+      ctx.arc(radius, radius, radius - 4, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // Center Hub
+      ctx.beginPath();
+      ctx.arc(radius, radius, 22, 0, 2 * Math.PI);
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    function openSpinnerModal() {
+      const modal = document.getElementById('modal-spinner');
+      const card = document.getElementById('spinner-modal-card');
+      modal.classList.remove('pointer-events-none', 'opacity-0');
+      card.classList.remove('scale-95');
+      drawWheel();
+    }
+
+    function closeSpinnerModal() {
+      if (isSpinning) return;
+      const modal = document.getElementById('modal-spinner');
+      const card = document.getElementById('spinner-modal-card');
+      modal.classList.add('pointer-events-none', 'opacity-0');
+      card.classList.add('scale-95');
+    }
+
+    function applyCustomBudget() {
+      const val = parseInt(document.getElementById('custom-budget-input').value);
+      if (!isNaN(val) && val >= 0) {
+        state.budget = val;
+        state.isRich = false;
+        state.isBroke = false;
+        updateBudgetUI();
+        showToast('Budget Updated', `Set budget override to $${val}.`);
+        closeSpinnerModal();
+      }
+    }
+
+    function spinWheel() {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      const spinBtn = document.getElementById('btn-spin');
+      spinBtn.disabled = true;
+      spinBtn.classList.add('opacity-50');
+
+      const resultBanner = document.getElementById('spinner-result');
+      resultBanner.innerText = 'Spinning...';
+      resultBanner.className = 'min-h-[42px] my-2 flex items-center justify-center font-display font-extrabold text-xl text-amber-400 animate-pulse';
+
+      const selectedIndex = Math.floor(Math.random() * WHEEL_SLICES.length);
+      const numSlices = WHEEL_SLICES.length;
+      const arc = (2 * Math.PI) / numSlices;
+
+      const targetSliceCenter = selectedIndex * arc + arc / 2;
+      const offsetToTop = -Math.PI / 2 - targetSliceCenter;
+      const fullRotations = (5 + Math.floor(Math.random() * 3)) * (2 * Math.PI);
+      const finalAngle = wheelAngle + fullRotations + (offsetToTop - (wheelAngle % (2 * Math.PI)));
+
+      let start = null;
+      const duration = 4000;
+      const initialAngle = wheelAngle;
+
+      function animateSpin(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        wheelAngle = initialAngle + (finalAngle - initialAngle) * easeOut;
+
+        drawWheel();
+        playSfx('tick');
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          spinBtn.classList.remove('opacity-50');
+          
+          const result = WHEEL_SLICES[selectedIndex];
+          if (result.value === 'RICH') {
+            state.isRich = true;
+            state.isBroke = false;
+            resultBanner.innerText = '🎉 UNLIMITED BUDGET (RICH)!';
+            resultBanner.className = 'min-h-[42px] my-2 flex items-center justify-center font-display font-extrabold text-xl text-amber-300 text-glow-yellow';
+          } else if (result.value === 'BROKE') {
+            state.isBroke = true;
+            state.isRich = false;
+            state.budget = 0;
+            resultBanner.innerText = '😭 BROKE ($0)! Common items only!';
+            resultBanner.className = 'min-h-[42px] my-2 flex items-center justify-center font-display font-extrabold text-xl text-red-400 text-glow-red';
+          } else {
+            state.isRich = false;
+            state.isBroke = false;
+            state.budget = result.value;
+            resultBanner.innerText = `🎁 BUDGET ROLLED: $${result.value}`;
+            resultBanner.className = 'min-h-[42px] my-2 flex items-center justify-center font-display font-extrabold text-xl text-emerald-400 text-glow-yellow';
+          }
+          
+          playSfx('win');
+          updateBudgetUI();
+        }
+      }
+
+      requestAnimationFrame(animateSpin);
+    }
+
+    /* ==========================================================================
+       9. UTILITIES & INITIALIZATION
+       ========================================================================== */
+    function showToast(title, msg, isError = false) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-title').innerText = title;
+      document.getElementById('toast-msg').innerText = msg;
+
+      const iconEl = document.getElementById('toast-icon');
+      if (isError) {
+        iconEl.className = 'text-xl text-red-500';
+        iconEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+      } else {
+        iconEl.className = 'text-xl text-cyan-400';
+        iconEl.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    window.onload = function() {
+      updateBudgetUI();
+      renderShopGrid();
+      drawWheel();
+    };
+  </script>
+</body>
+</html>
